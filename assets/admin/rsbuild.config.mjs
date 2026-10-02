@@ -63,7 +63,7 @@ export default defineConfig({
             chain.module.rule(CHAIN_ID.RULE.CSS).test(/\.(css|scss)$/);
             // CKEditor imports SVG icons as markup; CSS font URLs remain assets.
             chain.module.rule(CHAIN_ID.RULE.SVG)
-                .oneOf('sulu-svg-source').before(CHAIN_ID.ONE_OF.SVG)
+                .oneOf('sulu-svg-source').before(CHAIN_ID.ONE_OF.SVG_ASSET)
                 .issuer(/\.js$/).type('asset/source');
         },
         rspack: (config) => {
