@@ -108,21 +108,23 @@ tasks:
             - npm install {{.CLI_ARGS}}
 
     admin:build:
-        desc: Admin-Assets für Produktion bauen
+        desc: Admin-Assets mit Rsbuild für Produktion bauen
         dir: assets/admin
         cmds:
             - npm run build -- {{.CLI_ARGS}}
 
     admin:watch:
-        desc: Admin-Assets bei Änderungen neu bauen
+        desc: Admin-Assets mit Rsbuild bei Änderungen neu bauen
         dir: assets/admin
         cmds:
             - npm run watch -- {{.CLI_ARGS}}
 
     admin:update:
-        desc: Offiziellen Sulu-Admin-Build aktualisieren
+        desc: Admin-Abhängigkeiten aktualisieren und mit Rsbuild bauen
+        dir: assets/admin
         cmds:
-            - php bin/adminconsole sulu:admin:update-build --env={{.ENV}} {{.CLI_ARGS}}
+            - npm update {{.CLI_ARGS}}
+            - npm run build
 
     search:reindex:
         desc: Suchindizes mit SEAL neu aufbauen

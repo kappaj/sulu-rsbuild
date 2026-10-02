@@ -77,8 +77,9 @@ task install                       # Composer- und Admin-Abhängigkeiten install
 task docker:up                     # MySQL und Mailpit starten
 task sulu:build                    # Sulu bei der Ersteinrichtung initialisieren
 task serve                         # Webserver auf http://127.0.0.1:8000 starten
-task admin:build                   # Admin-Assets bauen
-task admin:watch                   # Admin-Assets während der Entwicklung bauen
+task admin:build                   # Admin-Assets mit Rsbuild für Produktion bauen
+task admin:watch                   # Admin-Assets mit Rsbuild während der Entwicklung bauen
+task admin:update                  # Admin-Abhängigkeiten aktualisieren und neu bauen
 task test                          # PHPUnit ausführen
 task lint                          # Alle Qualitätsprüfungen ausführen
 task fix                           # Automatische Codekorrekturen anwenden
@@ -95,6 +96,19 @@ Für Datenbanktests kann `task test:setup` die Testdatenbank vorbereiten;
 `task test:coverage` schreibt Berichte nach `var/reports` und benötigt Xdebug
 oder PCOV. Konsolen-, Datenbank-, Sulu- und Cache-Tasks verwenden standardmäßig
 `ENV=dev`; die Composer-Skripte behalten ihre eigene Umgebungskonfiguration bei.
+
+Der Admin-Build verwendet [Rsbuild](https://rsbuild.rs/) und benötigt Node.js
+20.19+ (20.x) oder 22.12+. Die Konfiguration liegt in
+`assets/admin/rsbuild.config.mjs`. `task admin:build` schreibt die Assets mit
+Dateihashes und das Symfony-kompatible `manifest.json` nach `public/build/admin`.
+`task admin:watch` baut im Entwicklungsmodus bei Änderungen neu; die Assets
+werden weiterhin über den PHP-Webserver ausgeliefert. Zusätzliche Rsbuild-Optionen
+lassen sich weiterreichen, etwa mit `task admin:build -- --source-map`.
+
+`task admin:update` aktualisiert die npm-Abhängigkeiten und baut lokal mit Rsbuild.
+Der Sulu-Befehl `sulu:admin:update-build` übernimmt dagegen die Webpack-Dateien
+aus dem offiziellen Skeleton. Bei Sulu-Upgrades die Bundle-Imports in
+`assets/admin/index.js` abgleichen und die eigene Rsbuild-Konfiguration beibehalten.
 
 
 ## 📘&nbsp; License
