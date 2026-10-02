@@ -1,0 +1,160 @@
+version: '3'
+
+vars:
+    ENV: dev
+
+tasks:
+    default:
+        desc: Verfügbare Tasks anzeigen
+        cmds:
+            - task --list
+
+    install:
+        desc: PHP- und Admin-Abhängigkeiten installieren
+        cmds:
+            - composer install
+            -   task: admin:install
+
+    composer:
+        desc: Composer ausführen (task composer -- validate)
+        cmds:
+            - composer {{.CLI_ARGS}}
+
+    serve:
+        desc: Lokalen PHP-Webserver auf 127.0.0.1:8000 starten
+        cmds:
+            - composer serve
+
+    docker:up:
+        desc: MySQL und Mailpit im Hintergrund starten
+        cmds:
+            - docker compose up -d {{.CLI_ARGS}}
+
+    docker:down:
+        desc: Docker-Dienste stoppen (Datenbank-Volume bleibt erhalten)
+        cmds:
+            - docker compose down {{.CLI_ARGS}}
+
+    docker:logs:
+        desc: Docker-Logs verfolgen (task docker:logs -- database)
+        cmds:
+            - docker compose logs --follow {{.CLI_ARGS}}
+
+    docker:status:
+        desc: Docker-Dienste und zugewiesene Ports anzeigen
+        cmds:
+            - docker compose ps
+
+    console:
+        desc: Admin-Konsole ausführen (task console -- debug:router)
+        cmds:
+            - php bin/adminconsole --env={{.ENV}} {{.CLI_ARGS}}
+
+    console:website:
+        desc: Website-Konsole ausführen (task console:website -- debug:router)
+        cmds:
+            - php bin/websiteconsole --env={{.ENV}} {{.CLI_ARGS}}
+
+    sulu:build:
+        desc: Sulu mit Build-Ziel dev initialisieren (task sulu:build ENV=prod -- prod)
+        interactive: true
+        cmds:
+            - php bin/adminconsole sulu:build --env={{.ENV}} {{.CLI_ARGS | default "dev"}}
+
+    sulu:user:create:
+        desc: Sulu-Benutzer interaktiv anlegen
+        interactive: true
+        cmds:
+            - php bin/adminconsole sulu:security:user:create --env={{.ENV}} {{.CLI_ARGS}}
+
+    db:create:
+        desc: Datenbank anlegen, falls sie noch nicht existiert
+        cmds:
+            - php bin/adminconsole doctrine:database:create --if-not-exists --env={{.ENV}}
+
+    db:migrate:
+        desc: Ausstehende Datenbankmigrationen ausführen (interaktiv)
+        interactive: true
+        cmds:
+            - php bin/adminconsole doctrine:migrations:migrate --env={{.ENV}} {{.CLI_ARGS}}
+
+    db:diff:
+        desc: Migration aus Unterschieden zwischen Mapping und Datenbank erzeugen
+        cmds:
+            - php bin/adminconsole doctrine:migrations:diff --env={{.ENV}} {{.CLI_ARGS}}
+
+    cache:clear:
+        desc: Admin- und Website-Cache leeren (task cache:clear ENV=prod)
+        cmds:
+            - php bin/adminconsole cache:clear --env={{.ENV}}
+            - php bin/websiteconsole cache:clear --env={{.ENV}}
+
+    cache:warmup:
+        desc: Admin- und Website-Cache aufwärmen
+        cmds:
+            - php bin/adminconsole cache:warmup --env={{.ENV}}
+            - php bin/websiteconsole cache:warmup --env={{.ENV}}
+
+    assets:install:
+        desc: Bundle-Assets nach public installieren und Media-Verzeichnisse initialisieren
+        cmds:
+            - php bin/adminconsole assets:install public --env={{.ENV}}
+            - php bin/adminconsole sulu:media:init --env={{.ENV}}
+
+    admin:install:
+        desc: Admin-Abhängigkeiten installieren (benötigt zuvor composer install)
+        dir: assets/admin
+        cmds:
+            - npm install {{.CLI_ARGS}}
+
+    admin:build:
+        desc: Admin-Assets für Produktion bauen
+        dir: assets/admin
+        cmds:
+            - npm run build -- {{.CLI_ARGS}}
+
+    admin:watch:
+        desc: Admin-Assets bei Änderungen neu bauen
+        dir: assets/admin
+        cmds:
+            - npm run watch -- {{.CLI_ARGS}}
+
+    admin:update:
+        desc: Offiziellen Sulu-Admin-Build aktualisieren
+        cmds:
+            - php bin/adminconsole sulu:admin:update-build --env={{.ENV}} {{.CLI_ARGS}}
+
+    search:reindex:
+        desc: Suchindizes mit SEAL neu aufbauen
+        cmds:
+            - php bin/adminconsole cmsig:seal:reindex --env={{.ENV}} {{.CLI_ARGS}}
+
+    test:setup:
+        desc: 'ACHTUNG: Testdatenbank löschen und neu anlegen'
+        cmds:
+            - composer bootstrap-test-environment
+
+    test:
+        desc: PHPUnit ausführen (task test -- --filter Name)
+        cmds:
+            - composer test -- {{.CLI_ARGS}}
+
+    test:coverage:
+        desc: PHPUnit mit Coverage-Berichten in var/reports ausführen (benötigt Xdebug oder PCOV)
+        cmds:
+            - composer test-with-coverage -- {{.CLI_ARGS}}
+
+    lint:
+        desc: Alle vorhandenen Composer-Qualitätsprüfungen ausführen
+        cmds:
+            - composer lint
+
+    phpstan:
+        desc: Statische PHP-Analyse mit Cache-Warmup ausführen
+        cmds:
+            - composer phpstan -- {{.CLI_ARGS}}
+
+    fix:
+        desc: Rector sowie PHP- und Twig-Codeformatierung anwenden
+        cmds:
+            - composer fix
