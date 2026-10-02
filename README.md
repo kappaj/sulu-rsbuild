@@ -65,50 +65,52 @@ Feel free to **file a new issue** with a respective title and description on the
 
 Sulu 2.6 requires a **PHP version higher or equal to 8.2** and is compatible with **Symfony version 5.4 - 7.4**. Have a look at the `require` section in the [composer.json](https://github.com/sulu/sulu/blob/2.6/composer.json) of the [sulu/sulu](https://github.com/sulu/sulu) core framework to find an **up-to-date list of the requirements** of Sulu content management system.
 
-## Lokale Entwicklung mit Task
+## Local development with Task
 
-Das [Taskfile.yml](Taskfile.yml) bündelt die Projektbefehle. Voraussetzung ist
-[Task v3](https://taskfile.dev/docs/installation); PHP, Composer, Node.js/npm und
-Docker Compose werden je nach Task benötigt. `task` oder `task --list` zeigt alle
-verfügbaren Tasks.
+Use English for source code identifiers, comments, task descriptions, and project documentation.
+
+The [Taskfile.yml](Taskfile.yml) groups the project commands. It requires
+[Task v3](https://taskfile.dev/docs/installation); PHP, Composer, Node.js/npm, and
+Docker Compose are needed depending on the task. Run `task` or `task --list` to
+show all available tasks.
 
 ```bash
-task install                       # Composer- und Admin-Abhängigkeiten installieren
-task docker:up                     # MySQL und Mailpit starten
-task sulu:build                    # Sulu bei der Ersteinrichtung initialisieren
-task serve                         # Webserver auf http://127.0.0.1:8000 starten
-task admin:build                   # Admin-Assets mit Rsbuild für Produktion bauen
-task admin:watch                   # Admin-Assets mit Rsbuild während der Entwicklung bauen
-task admin:update                  # Admin-Abhängigkeiten aktualisieren und neu bauen
-task test                          # PHPUnit ausführen
-task lint                          # Alle Qualitätsprüfungen ausführen
-task fix                           # Automatische Codekorrekturen anwenden
-task cache:clear ENV=prod           # Cache für eine andere Umgebung leeren
-task console -- debug:router       # Argumente an die Admin-Konsole weitergeben
-task test -- --filter ExampleTest   # Einzelne Tests auswählen
-task composer -- lint-twig          # Einzelne Composer-Prüfung ausführen
+task install                       # Install Composer and admin dependencies
+task docker:up                     # Start MySQL and Mailpit
+task sulu:build                    # Initialize Sulu during the initial setup
+task serve                         # Start the web server at http://127.0.0.1:8000
+task admin:build                   # Build admin assets with Rsbuild for production
+task admin:watch                   # Build admin assets with Rsbuild during development
+task admin:update                  # Update admin dependencies and rebuild
+task test                          # Run PHPUnit
+task lint                          # Run all quality checks
+task fix                           # Apply automatic code fixes
+task cache:clear ENV=prod           # Clear the cache for another environment
+task console -- debug:router       # Pass arguments to the admin console
+task test -- --filter ExampleTest   # Select individual tests
+task composer -- lint-twig          # Run an individual Composer check
 ```
 
-Vor `task sulu:build` die Datenbankverbindung in `.env.local` konfigurieren.
-`task docker:status` zeigt auch die dynamisch zugewiesenen Mailpit-Ports.
-Für Datenbanktests kann `task test:setup` die Testdatenbank vorbereiten;
-**dieser Task löscht die vorhandene Testdatenbank und legt sie neu an**.
-`task test:coverage` schreibt Berichte nach `var/reports` und benötigt Xdebug
-oder PCOV. Konsolen-, Datenbank-, Sulu- und Cache-Tasks verwenden standardmäßig
-`ENV=dev`; die Composer-Skripte behalten ihre eigene Umgebungskonfiguration bei.
+Configure the database connection in `.env.local` before running `task sulu:build`.
+`task docker:status` also shows the dynamically assigned Mailpit ports.
+For database tests, `task test:setup` can prepare the test database;
+**this task deletes the existing test database and recreates it**.
+`task test:coverage` writes reports to `var/reports` and requires Xdebug
+or PCOV. Console, database, Sulu, and cache tasks default to
+`ENV=dev`; Composer scripts retain their own environment configuration.
 
-Der Admin-Build verwendet [Rsbuild](https://rsbuild.rs/) und benötigt Node.js
-20.19+ (20.x) oder 22.12+. Die Konfiguration liegt in
-`assets/admin/rsbuild.config.mjs`. `task admin:build` schreibt die Assets mit
-Dateihashes und das Symfony-kompatible `manifest.json` nach `public/build/admin`.
-`task admin:watch` baut im Entwicklungsmodus bei Änderungen neu; die Assets
-werden weiterhin über den PHP-Webserver ausgeliefert. Zusätzliche Rsbuild-Optionen
-lassen sich weiterreichen, etwa mit `task admin:build -- --source-map`.
+The admin build uses [Rsbuild](https://rsbuild.rs/) and requires Node.js
+20.19+ (20.x) or 22.12+. Its configuration is in
+`assets/admin/rsbuild.config.mjs`. `task admin:build` writes assets with
+file hashes and the Symfony-compatible `manifest.json` to `public/build/admin`.
+`task admin:watch` rebuilds in development mode when files change; the assets
+are still served by the PHP web server. Additional Rsbuild options
+can be passed through, for example with `task admin:build -- --source-map`.
 
-`task admin:update` aktualisiert die npm-Abhängigkeiten und baut lokal mit Rsbuild.
-Der Sulu-Befehl `sulu:admin:update-build` übernimmt dagegen die Webpack-Dateien
-aus dem offiziellen Skeleton. Bei Sulu-Upgrades die Bundle-Imports in
-`assets/admin/index.js` abgleichen und die eigene Rsbuild-Konfiguration beibehalten.
+`task admin:update` updates npm dependencies and builds locally with Rsbuild.
+The Sulu command `sulu:admin:update-build` copies the Webpack files
+from the official skeleton. When upgrading Sulu, review the bundle imports in
+`assets/admin/index.js` and keep the project's Rsbuild configuration.
 
 
 ## 📘&nbsp; License
